@@ -1,25 +1,25 @@
-# <PROJECT_NAME>
+# vyper-debug
 
-[![Join the chat at https://gitter.im/ethereum/<REPO_NAME>](https://badges.gitter.im/ethereum/<REPO_NAME>.svg)](https://gitter.im/ethereum/<REPO_NAME>?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://circleci.com/gh/ethereum/<REPO_NAME>.svg?style=shield)](https://circleci.com/gh/ethereum/<REPO_NAME>)
-[![PyPI version](https://badge.fury.io/py/<PYPI_NAME>.svg)](https://badge.fury.io/py/<PYPI_NAME>)
-[![Python versions](https://img.shields.io/pypi/pyversions/<PYPI_NAME>.svg)](https://pypi.python.org/pypi/<PYPI_NAME>)
-[![Docs build](https://readthedocs.org/projects/<RTD_NAME>/badge/?version=latest)](http://<RTD_NAME>.readthedocs.io/en/latest/?badge=latest)
+[![Join the chat at https://gitter.im/ethereum/vyper-debug](https://badges.gitter.im/ethereum/vyper-debug.svg)](https://gitter.im/ethereum/vyper-debug?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://circleci.com/gh/ethereum/vyper-debug.svg?style=shield)](https://circleci.com/gh/ethereum/vyper-debug)
+[![PyPI version](https://badge.fury.io/py/vyper-debug.svg)](https://badge.fury.io/py/vyper-debug)
+[![Python versions](https://img.shields.io/pypi/pyversions/vyper-debug.svg)](https://pypi.python.org/pypi/vyper-debug)
+[![Docs build](https://readthedocs.org/projects/vyper-debug/badge/?version=latest)](http://vyper-debug.readthedocs.io/en/latest/?badge=latest)
    
 
-<SHORT_DESCRIPTION>
+Easy to use Vyper debugger | vdb
 
-Read more in the [documentation on ReadTheDocs](https://<RTD_NAME>.readthedocs.io/). [View the change log](https://<RTD_NAME>.readthedocs.io/en/latest/releases.html).
+Read more in the [documentation on ReadTheDocs](https://vyper-debug.readthedocs.io/). [View the change log](https://vyper-debug.readthedocs.io/en/latest/releases.html).
 
 ## Quickstart
 
 ```sh
-pip install <PYPI_NAME>
+pip install vyper-debug
 ```
 
 ## Developer Setup
 
-If you would like to hack on <REPO_NAME>, please check out the
+If you would like to hack on vyper-debug, please check out the
 [Ethereum Development Tactical Manual](https://github.com/pipermerriam/ethereum-dev-tactical-manual)
 for information on how we do:
 
@@ -33,8 +33,8 @@ for information on how we do:
 You can set up your dev environment with:
 
 ```sh
-git clone git@github.com:ethereum/<REPO_NAME>.git
-cd <REPO_NAME>
+git clone git@github.com:ethereum/vyper-debug.git
+cd vyper-debug
 virtualenv -p python3 venv
 . venv/bin/activate
 pip install -e .[dev]
@@ -48,7 +48,7 @@ Show flake8 errors on file change:
 
 ```sh
 # Test flake8
-when-changed -v -s -r -1 <MODULE_NAME>/ tests/ -c "clear; flake8 <MODULE_NAME> tests && echo 'flake8 success' || echo 'error'"
+when-changed -v -s -r -1 vdb/ tests/ -c "clear; flake8 vdb tests && echo 'flake8 success' || echo 'error'"
 ```
 
 Run multi-process tests in one command, but without color:
@@ -64,7 +64,7 @@ Run in one thread, with color and desktop notifications:
 
 ```sh
 cd venv
-ptw --onfail "notify-send -t 5000 'Test failure ⚠⚠⚠⚠⚠' 'python 3 test on <REPO_NAME> failed'" ../tests ../<MODULE_NAME>
+ptw --onfail "notify-send -t 5000 'Test failure ⚠⚠⚠⚠⚠' 'python 3 test on vyper-debug failed'" ../tests ../vdb
 ```
 
 ### Release setup

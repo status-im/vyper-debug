@@ -1,1 +1,1 @@
-<PYPI_NAME>[doc]
+vyper-debug[doc]

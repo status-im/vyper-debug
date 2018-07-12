@@ -1,7 +1,7 @@
-<PROJECT_NAME>
+vyper-debug
 ==============================
 
-<SHORT_DESCRIPTION>
+Easy to use Vyper debugger | vdb
 
 Contents
 --------
@@ -9,7 +9,7 @@ Contents
 .. toctree::
     :maxdepth: 3
 
-    <MODULE_NAME>
+    vdb
     releases
 
 
