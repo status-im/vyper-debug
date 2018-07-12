@@ -41,15 +41,19 @@ setup(
     version='0.1.0-alpha.0',
     description="""vyper-debug: Easy to use Vyper debugger | vdb""",
     long_description_markdown_filename='README.md',
-    author='Jason Carver',
-    author_email='ethcalibur+pip@gmail.com',
+    author='Jacques Wagener',
+    author_email='jacques+pip@dilectum.co.za',
     url='https://github.com/ethereum/vyper-debug',
     include_package_data=True,
     install_requires=[
-        "eth-utils>=1,<2",
+        "eth-tester==0.1.0b28",
+        "myvyper==0.1.0b1"
+    ],
+    dependency_links=[
+        "git+https://github.com/ethereum/vyper.git#egg=myvyper-0.1.0b1"
     ],
     setup_requires=['setuptools-markdown'],
-    python_requires='>=3.5, <4',
+    python_requires='>=3.6, <4',
     extras_require=extras_require,
     py_modules=['vdb'],
     license="MIT",
@@ -64,4 +68,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
+    scripts=[
+        'bin/vyper-run',
+    ]
 )
