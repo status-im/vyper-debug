@@ -1,17 +1,23 @@
 import cmd
-import evm
 
 # from eth_hash.auto import keccak
-from eth_utils import to_hex
-from evm import constants
-from evm.vm.opcode import as_opcode
-from evm.utils.numeric import (
-    int_to_big_endian,
-    big_endian_to_int,
-    # ceil32
+from eth_utils import (
+    to_hex,
 )
-from vyper.opcodes import opcodes as vyper_opcodes
-
+import evm
+from evm import (
+    constants,
+)
+from evm.utils.numeric import (  # ceil32
+    big_endian_to_int,
+    int_to_big_endian,
+)
+from evm.vm.opcode import (
+    as_opcode,
+)
+from vyper.opcodes import (
+    opcodes as vyper_opcodes,
+)
 
 commands = [
     'continue',
@@ -138,7 +144,8 @@ class VyperDebugCmd(cmd.Cmd):
                 if global_type in base_types:
                     slot = self.globals[name]['position']
                 elif global_type == 'mapping':
-                    # location_hash= keccak(int_to_big_endian(self.globals[name]['position']).rjust(32, b'\0'))
+                    # location_hash= keccak(int_to_big_endian(
+                    #   self.globals[name]['position']).rjust(32, b'\0'))
                     # slot = big_endian_to_int(location_hash)
                     pass
                 else:
@@ -201,8 +208,15 @@ original_opcodes = evm.vm.forks.byzantium.computation.ByzantiumComputation.opcod
 def set_evm_opcode_debugger(source_code=None, source_map=None):
 
     def debug_opcode(computation):
-        line_no = computation.stack_pop(num_items=1, type_hint=constants.UINT256)
-        VyperDebugCmd(computation, line_no=line_no, source_code=source_code, source_map=source_map).cmdloop()
+        line_no = computation.stack_pop(
+            num_items=1, type_hint=constants.UINT256
+        )
+        VyperDebugCmd(
+            computation=computation,
+            line_no=line_no,
+            source_code=source_code,
+            source_map=source_map
+        ).cmdloop()
 
     opcodes = original_opcodes.copy()
     opcodes[vyper_opcodes['DEBUG'][0]] = as_opcode(
