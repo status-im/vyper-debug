@@ -7,7 +7,7 @@ from vyper import compiler
 from vyper.parser import (
     parser,
 )
-from vyper.vdb import (
+from vdb.vdb import (
     set_evm_opcode_debugger,
     set_evm_opcode_pass
 )
