@@ -100,50 +100,6 @@ if __name__ == '__main__':
 
             abi = compiler.mk_full_signature(code)
 
-        def serialise_var_rec(var_rec):
-            return {
-                'type': var_rec.typ.typ,
-                'size': var_rec.size * 32,
-                'position': var_rec.pos
-            }
-
-        _contracts, _events, _defs, _globals, _custom_units = parser.get_contracts_and_defs_and_globals(parser.parse(code))
-        source_map = {
-            'globals': {},
-            'locals': {}
-        }
-        source_map['globals'] = {
-            name: serialise_var_rec(var_record)
-            for name, var_record in _globals.items()
-        }
-        # Fetch context for each function.
-        lll = parser.parse_tree_to_lll(parser.parse(code), code, runtime_only=True)
-        contexts = {
-            f.func_name: f.context
-            for f in lll.args[1:] if hasattr(f, 'context')
-        }
-
-        prev_func_name = None
-        for _def in _defs:
-            func_info = {
-                'from_lineno': _def.lineno,
-                'variables': {}
-            }
-            # set local variables for specific function.
-            context = contexts[_def.name]
-            func_info['variables'] = {
-                var_name: serialise_var_rec(var_rec)
-                for var_name, var_rec in context.vars.items()
-            }
-
-            source_map['locals'][_def.name] = func_info
-            # set to_lineno
-            if prev_func_name:
-                source_map['locals'][prev_func_name]['to_lineno'] = _def.lineno
-            prev_func_name = _def.name
-
-        source_map['locals'][_def.name]['to_lineno'] = len(code.splitlines())
-
         # Format init args.
         if init_args:
             init_abi = next(filter(lambda func: func["name"] == '__init__', abi))
