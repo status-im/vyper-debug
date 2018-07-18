@@ -1,9 +1,10 @@
 import cmd
-import evm
 
 # from eth_hash.auto import keccak
 from eth_utils import to_hex
 from eth_abi import decode_single
+
+import evm
 from evm import constants
 from evm.vm.opcode import as_opcode
 from evm.utils.numeric import (
