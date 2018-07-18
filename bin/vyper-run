@@ -11,6 +11,9 @@ from vdb.vdb import (
     set_evm_opcode_debugger,
     set_evm_opcode_pass
 )
+from vdb.source_map import (
+    produce_source_map
+)
 from eth_tester import (
     EthereumTester,
 )
@@ -123,6 +126,7 @@ if __name__ == '__main__':
             cast_args = cast_types(args, func_abi)
             res = getattr(contract.functions, func_name)(*cast_args).call({'gas': func_abi['gas'] + 22000})
 
+            source_map = produce_source_map(code)
             set_evm_opcode_debugger(source_code=code, source_map=source_map)
             tx_hash = getattr(contract.functions, func_name)(*cast_args).transact({'gas': func_abi['gas'] + 22000})
             set_evm_opcode_pass()
