@@ -7,6 +7,7 @@ from vyper.types import (
     MappingType
 )
 
+
 def serialise_var_rec(var_rec):
     if isinstance(var_rec.typ, ByteArrayType):
         type_str = 'bytes[%s]' % var_rec.typ.maxlen
@@ -27,7 +28,8 @@ def serialise_var_rec(var_rec):
 
 
 def produce_source_map(code):
-    _contracts, _events, _defs, _globals, _custom_units = parser.get_contracts_and_defs_and_globals(parser.parse(code))
+    _contracts, _events, _defs, _globals, _custom_units = \
+        parser.get_contracts_and_defs_and_globals(parser.parse(code))
     source_map = {
         'globals': {},
         'locals': {}

@@ -8,11 +8,8 @@ from evm import constants
 from evm.vm.opcode import as_opcode
 from evm.utils.numeric import (
     int_to_big_endian,
-    big_endian_to_int,
-    # ceil32
 )
 from vyper.opcodes import opcodes as vyper_opcodes
-
 
 commands = [
     'continue',
@@ -22,10 +19,10 @@ commands = [
 base_types = ('int128', 'uint256', 'address', 'bytes32')
 
 
-def history():
+def history(stdout):
     import readline
     for i in range(1, readline.get_current_history_length() + 1):
-        self.stdout.write("%3d %s" % (i, readline.get_history_item(i)) + '\n')
+        stdout.write("%3d %s" % (i, readline.get_history_item(i)) + '\n')
 
 
 logo = """
@@ -58,7 +55,8 @@ class VyperDebugCmd(cmd.Cmd):
     prompt = '\033[92mvdb\033[0m> '
     intro = logo
 
-    def __init__(self, computation, line_no=None, source_code=None, source_map=None, stdout=None, stdin=None):
+    def __init__(self, computation, line_no=None, source_code=None, source_map=None,
+                 stdout=None, stdin=None):
         if source_map is None:
             source_map = {}
         self.computation = computation
@@ -116,7 +114,7 @@ class VyperDebugCmd(cmd.Cmd):
 
     def do_locals(self, *args):
         if not self.locals:
-            self.stdout.write('No locals found.' + '\n')
+            self.stdout.write('No locals found.\n')
         fn_name, variables = self._get_fn_name_locals()
         self.stdout.write('Function: {}'.format(fn_name) + '\n')
         self.stdout.write('Name\t\tType' + '\n')
@@ -140,11 +138,12 @@ class VyperDebugCmd(cmd.Cmd):
                 if global_type in base_types:
                     slot = self.globals[name]['position']
                 elif global_type == 'mapping':
-                    # location_hash= keccak(int_to_big_endian(self.globals[name]['position']).rjust(32, b'\0'))
+                    # location_hash= keccak(int_to_big_endian(
+                    #    self.globals[name]['position']).rjust(32, b'\0'))
                     # slot = big_endian_to_int(location_hash)
                     pass
                 else:
-                    self.stdout.write('Can not read global of type "{}".'.format(global_type) + '\n')
+                    self.stdout.write('Can not read global of type "{}".\n'.format(global_type))
 
                 if slot is not None:
                     value = self.computation.state.account_db.get_storage(
@@ -160,7 +159,7 @@ class VyperDebugCmd(cmd.Cmd):
                 value = self.computation.memory_read(start_position, 32)
                 print_var(self.stdout, value, local_type)
             else:
-                self.stdout.write('Can not read local of type ' + '\n')
+                self.stdout.write('Can not read local of type\n')
         else:
             self.stdout.write('*** Unknown syntax: %s\n' % line)
 
@@ -169,14 +168,14 @@ class VyperDebugCmd(cmd.Cmd):
         for idx, value in enumerate(self.computation._stack.values):
             self.stdout.write("{}\t{}".format(idx, to_hex(value)) + '\n')
         else:
-            self.stdout.write("Stack is empty" + '\n')
+            self.stdout.write("Stack is empty\n")
 
     def do_pdb(self, *args):
         # Break out to pdb for vdb debugging.
         import pdb; pdb.set_trace()  # noqa
 
     def do_history(self, *args):
-        history()
+        history(self.stdout)
 
     def emptyline(self):
         pass

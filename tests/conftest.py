@@ -13,7 +13,6 @@ from web3 import (
 )
 from vdb.vdb import (
     set_evm_opcode_debugger,
-    set_evm_opcode_pass,
     VyperDebugCmd
 )
 from vdb.source_map import (
@@ -47,7 +46,9 @@ def _get_contract(w3, source_code, *args, **kwargs):
     stdout = kwargs['stdout'] if 'stdout' in kwargs else None
 
     source_map = produce_source_map(source_code)
-    set_evm_opcode_debugger(source_code=source_code, source_map=source_map, stdin=stdin, stdout=stdout)
+    set_evm_opcode_debugger(
+        source_code=source_code, source_map=source_map, stdin=stdin, stdout=stdout
+    )
 
     value = kwargs.pop('value', 0)
     value_in_eth = kwargs.pop('value_in_eth', 0)
@@ -75,6 +76,7 @@ def get_contract(w3):
     def get_contract(source_code, *args, **kwargs):
         return _get_contract(w3, source_code, *args, **kwargs)
     return get_contract
+
 
 @pytest.fixture
 def get_last_out():

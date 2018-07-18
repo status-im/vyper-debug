@@ -34,5 +34,6 @@ def func2(a: int128):
             'a': {'type': 'int128', 'size': 32, 'position': 320},
             'b': {'type': 'int128', 'size': 32, 'position': 352},
             'c': {'type': 'int128', 'size': 32, 'position': 384},
-            'g': {'type': 'bytes[10]', 'size': 96, 'position': 416}},
-        }
+            'g': {'type': 'bytes[10]', 'size': 96, 'position': 416}
+        },
+    }
