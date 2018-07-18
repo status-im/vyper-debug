@@ -3,6 +3,7 @@ import evm
 
 # from eth_hash.auto import keccak
 from eth_utils import to_hex
+from eth_abi import decode_single
 from evm import constants
 from evm.vm.opcode import as_opcode
 from evm.utils.numeric import (
@@ -45,10 +46,8 @@ def print_var(stdout, value, var_typ):
         v = value
 
     if isinstance(v, bytes):
-        if var_typ == 'uint256':
-            stdout.write(str(big_endian_to_int(v)) + '\n')
-        elif var_typ == 'int128':
-            stdout.write('TODO!' + '\n')
+        if var_typ in ('int128', 'uint256'):
+            stdout.write(str(decode_single(var_typ, value)) + '\n')
         elif var_typ == 'address':
             stdout.write(to_hex(v[12:]) + '\n')
     else:

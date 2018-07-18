@@ -20,7 +20,7 @@ def test():
     assert get_last_out(stdout) == '33343'
 
 
-def test_print_int128(get_contract):
+def test_print_int128(get_contract, get_last_out):
     code = """
 @public
 def test():
@@ -30,10 +30,9 @@ def test():
 
     stdin = io.StringIO(
         "a\n"
-        "quit\n"
     )
     stdout = io.StringIO()
 
     c = get_contract(code, stdin=stdin, stdout=stdout)
     c.functions.test().call({"gas": 22000})
-    assert get_last_out(stdout) == 'TODO'
+    assert get_last_out(stdout) == '-123'
