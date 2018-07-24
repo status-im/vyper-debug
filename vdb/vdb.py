@@ -1,4 +1,5 @@
 import cmd
+import readline
 
 from eth_utils import to_hex
 
@@ -20,7 +21,6 @@ commands = [
 
 
 def history(stdout):
-    import readline
     for i in range(1, readline.get_current_history_length() + 1):
         stdout.write("%3d %s" % (i, readline.get_history_item(i)) + '\n')
 
@@ -105,7 +105,22 @@ class VyperDebugCmd(cmd.Cmd):
         for name, info in variables.items():
             self.stdout.write('{}\t\t{}'.format(name, info['type']) + '\n')
 
+    def completenames(self, text, *ignored):
+        line = text.strip()
+        if 'self.' in line:
+            return [
+                'self.' + x
+                for x in self.globals.keys()
+                if x.startswith(line.split('self.')[1])
+            ]
+        else:
+            dotext = 'do_' + text
+            cmds = [a[3:] for a in self.get_names() if a.startswith(dotext)]
+            _, local_vars = self._get_fn_name_locals()
+            return cmds + [x for x in local_vars.keys() if x.startswith(line)]
+
     def default(self, line):
+        line = line.strip()
         fn_name, local_variables = self._get_fn_name_locals()
 
         if line.startswith('self.') and len(line) > 4:
@@ -114,7 +129,7 @@ class VyperDebugCmd(cmd.Cmd):
             )
         elif line in local_variables:
             parse_local(
-                self.stdout, self.local_vars, self.computation, line
+                self.stdout, local_variables, self.computation, line
             )
         else:
             self.stdout.write('*** Unknown syntax: %s\n' % line)
