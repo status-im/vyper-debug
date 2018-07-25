@@ -1,27 +1,26 @@
 import cmd
+import readline
 
-# from eth_hash.auto import keccak
 from eth_utils import to_hex
-from eth_abi import decode_single
 
 import evm
 from evm import constants
 from evm.vm.opcode import as_opcode
-from evm.utils.numeric import (
-    int_to_big_endian,
-)
+
 from vyper.opcodes import opcodes as vyper_opcodes
+from vdb.variables import (
+    parse_global,
+    parse_local
+)
 
 commands = [
     'continue',
     'locals',
     'globals'
 ]
-base_types = ('int128', 'uint256', 'address', 'bytes32')
 
 
 def history(stdout):
-    import readline
     for i in range(1, readline.get_current_history_length() + 1):
         stdout.write("%3d %s" % (i, readline.get_history_item(i)) + '\n')
 
@@ -36,22 +35,6 @@ __     __
 """
 
 
-def print_var(stdout, value, var_typ):
-
-    if isinstance(value, int):
-        v = int_to_big_endian(value)
-    else:
-        v = value
-
-    if isinstance(v, bytes):
-        if var_typ in ('int128', 'uint256'):
-            stdout.write(str(decode_single(var_typ, value)) + '\n')
-        elif var_typ == 'address':
-            stdout.write(to_hex(v[12:]) + '\n')
-    else:
-        stdout.write(v + '\n')
-
-
 class VyperDebugCmd(cmd.Cmd):
     prompt = '\033[92mvdb\033[0m> '
     intro = logo
@@ -63,8 +46,8 @@ class VyperDebugCmd(cmd.Cmd):
         self.computation = computation
         self.source_code = source_code
         self.line_no = line_no
-        self.globals = source_map.get("globals")
-        self.locals = source_map.get("locals")
+        self.global_vars = source_map.get("globals", {})
+        self.local_vars = source_map.get("locals", {})
         super().__init__(stdin=stdin, stdout=stdout)
         if stdout or stdin:
             self.use_rawinput = False
@@ -101,20 +84,20 @@ class VyperDebugCmd(cmd.Cmd):
         self.stdout.write('Gas Remaining => {}'.format(self.computation.get_gas_remaining()) + '\n')
 
     def do_globals(self, *args):
-        if not self.globals:
+        if not self.global_vars:
             self.stdout.write('No globals found.' + '\n')
         self.stdout.write('Name\t\tType' + '\n')
-        for name, info in self.globals.items():
+        for name, info in self.global_vars.items():
             self.stdout.write('self.{}\t\t{}'.format(name, info['type']) + '\n')
 
     def _get_fn_name_locals(self):
-        for fn_name, info in self.locals.items():
+        for fn_name, info in self.local_vars.items():
             if info['from_lineno'] < self.line_no < info['to_lineno']:
                 return fn_name, info['variables']
         return '', {}
 
     def do_locals(self, *args):
-        if not self.locals:
+        if not self.local_vars:
             self.stdout.write('No locals found.\n')
         fn_name, variables = self._get_fn_name_locals()
         self.stdout.write('Function: {}'.format(fn_name) + '\n')
@@ -122,45 +105,32 @@ class VyperDebugCmd(cmd.Cmd):
         for name, info in variables.items():
             self.stdout.write('{}\t\t{}'.format(name, info['type']) + '\n')
 
+    def completenames(self, text, *ignored):
+        line = text.strip()
+        if 'self.' in line:
+            return [
+                'self.' + x
+                for x in self.globals.keys()
+                if x.startswith(line.split('self.')[1])
+            ]
+        else:
+            dotext = 'do_' + text
+            cmds = [a[3:] for a in self.get_names() if a.startswith(dotext)]
+            _, local_vars = self._get_fn_name_locals()
+            return cmds + [x for x in local_vars.keys() if x.startswith(line)]
+
     def default(self, line):
+        line = line.strip()
         fn_name, local_variables = self._get_fn_name_locals()
 
         if line.startswith('self.') and len(line) > 4:
-            if not self.globals:
-                self.stdout.write('No globals found.' + '\n')
-            # print global value.
-            name = line.split('.')[1]
-            if name not in self.globals:
-                self.stdout.write('Global named "{}" not found.'.format(name) + '\n')
-            else:
-                global_type = self.globals[name]['type']
-                slot = None
-
-                if global_type in base_types:
-                    slot = self.globals[name]['position']
-                elif global_type == 'mapping':
-                    # location_hash= keccak(int_to_big_endian(
-                    #    self.globals[name]['position']).rjust(32, b'\0'))
-                    # slot = big_endian_to_int(location_hash)
-                    pass
-                else:
-                    self.stdout.write('Can not read global of type "{}".\n'.format(global_type))
-
-                if slot is not None:
-                    value = self.computation.state.account_db.get_storage(
-                        address=self.computation.msg.storage_address,
-                        slot=slot,
-                    )
-                    print_var(self.stdout, value, global_type)
+            parse_global(
+                self.stdout, self.global_vars, self.computation, line
+            )
         elif line in local_variables:
-            var_info = local_variables[line]
-            local_type = var_info['type']
-            if local_type in base_types:
-                start_position = var_info['position']
-                value = self.computation.memory_read(start_position, 32)
-                print_var(self.stdout, value, local_type)
-            else:
-                self.stdout.write('Can not read local of type\n')
+            parse_local(
+                self.stdout, local_variables, self.computation, line
+            )
         else:
             self.stdout.write('*** Unknown syntax: %s\n' % line)
 

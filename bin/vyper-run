@@ -94,8 +94,8 @@ if __name__ == '__main__':
 
             if '(' in signature:
                 start_pos = signature.find('(')
-                name = signature[:start_pos]
-                args = signature[start_pos+1:-1].split(',')
+                name = signature[:start_pos].strip()
+                args = signature[start_pos + 1:-1].split(',')
                 args = [arg.strip() for arg in args]
                 args = [arg for arg in args if len(arg) > 0]
 
