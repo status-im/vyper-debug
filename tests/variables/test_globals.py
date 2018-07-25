@@ -1,5 +1,6 @@
 import io
 
+
 def test_single_key(get_contract, get_last_out):
     code = """
 amap: bytes32[bytes32]
