@@ -119,6 +119,11 @@ class VyperDebugCmd(cmd.Cmd):
             _, local_vars = self._get_fn_name_locals()
             return cmds + [x for x in local_vars.keys() if x.startswith(line)]
 
+    def mload(self, line):
+        """ Read something from memory """
+        pos = line.strip()
+        self.stdout.write(to_hex(to_hex(self.computation.memory_read(pos, 32))))
+
     def default(self, line):
         line = line.strip()
         fn_name, local_variables = self._get_fn_name_locals()
