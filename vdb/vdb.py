@@ -30,14 +30,13 @@ __     __
 \ \ _ / /
  \ v v /  Vyper Debugger
   \   /  0.0.0b1
-   \ /  "help" to get a list of commands
+   \ /
     v
 """
 
 
 class VyperDebugCmd(cmd.Cmd):
     prompt = '\033[92mvdb\033[0m> '
-    intro = logo
 
     def __init__(self, computation, line_no=None, source_code=None, source_map=None,
                  stdout=None, stdin=None):
