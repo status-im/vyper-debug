@@ -39,8 +39,13 @@ def parse_local(stdout, local_variables, computation, line):
         start_position = var_info['position']
         value = computation.memory_read(start_position, 32)
         print_var(stdout, value, local_type)
+    elif local_type.startswith('bytes'):
+        start_position = var_info['position']
+        byte_len = big_endian_to_int(computation.memory_read(start_position, 32))
+        value = computation.memory_read(start_position + 32, byte_len)
+        print_var(stdout, value, local_type)
     else:
-        stdout.write('Can not read local of type\n')
+        stdout.write('Can not read local of type "{}" \n'.format(local_type))
 
 
 def get_keys(n):

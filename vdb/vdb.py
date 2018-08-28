@@ -1,7 +1,10 @@
 import cmd
 import readline
 
-from eth_utils import to_hex
+from eth_utils import (
+    to_hex,
+    to_int
+)
 
 import evm
 from evm import constants
@@ -30,14 +33,13 @@ __     __
 \ \ _ / /
  \ v v /  Vyper Debugger
   \   /  0.0.0b1
-   \ /  "help" to get a list of commands
+   \ /
     v
 """
 
 
 class VyperDebugCmd(cmd.Cmd):
     prompt = '\033[92mvdb\033[0m> '
-    intro = logo
 
     def __init__(self, computation, line_no=None, source_code=None, source_map=None,
                  stdout=None, stdin=None):
@@ -118,6 +120,25 @@ class VyperDebugCmd(cmd.Cmd):
             cmds = [a[3:] for a in self.get_names() if a.startswith(dotext)]
             _, local_vars = self._get_fn_name_locals()
             return cmds + [x for x in local_vars.keys() if x.startswith(line)]
+
+    def do_mload(self, line):
+        """
+        Read something from memory
+        mload <pos: int>
+        mload <pos: 0x/hex>
+        """
+
+        pos_str = line.strip()
+
+        if pos_str.startswith('0x'):
+            pos = to_int(hexstr=pos_str)
+        else:
+            try:
+                pos = int(pos_str)
+            except ValueError:
+                self.stdout.write('Only valid int/hex positions allowed')
+
+        self.stdout.write(to_hex(self.computation.memory_read(pos, 32)) + '\n')
 
     def default(self, line):
         line = line.strip()
