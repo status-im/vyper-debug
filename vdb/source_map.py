@@ -4,13 +4,17 @@ from vyper.parser import (
 from vyper.types import (
     get_size_of_type,
     ByteArrayType,
-    MappingType
+    MappingType,
+    TupleType
 )
 
 
 def serialise_var_rec(var_rec):
     if isinstance(var_rec.typ, ByteArrayType):
         type_str = 'bytes[%s]' % var_rec.typ.maxlen
+        _size = get_size_of_type(var_rec.typ) * 32
+    elif isinstance(var_rec.typ, TupleType):
+        type_str = 'tuple'
         _size = get_size_of_type(var_rec.typ) * 32
     elif isinstance(var_rec.typ, MappingType):
         type_str = 'mapping(%s)' % var_rec.typ

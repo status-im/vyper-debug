@@ -1,9 +1,9 @@
 import cmd
 import readline
-
+import sys
 from eth_utils import (
     to_hex,
-    to_int
+    to_int,
 )
 
 import evm
@@ -121,24 +121,51 @@ class VyperDebugCmd(cmd.Cmd):
             _, local_vars = self._get_fn_name_locals()
             return cmds + [x for x in local_vars.keys() if x.startswith(line)]
 
+    def get_int(self, line):
+        if not line:
+            return 0
+
+        pos_str = line.strip()
+        if pos_str.startswith('0x'):
+            pos = to_int(hexstr=pos_str)
+        else:
+            pos = pos_str
+
+        try:
+            return int(pos)
+        except ValueError:
+            self.stdout.write('Only valid int/hex positions allowed')
+
     def do_mload(self, line):
         """
         Read something from memory
         mload <pos: int>
         mload <pos: 0x/hex>
         """
+        pos = self.get_int(line)
+        self.stdout.write(
+            "{}\t{} \n".format(
+                pos,
+                to_hex(self.computation.memory_read(pos, 32))
+            )
+        )
 
-        pos_str = line.strip()
+    def do_calldataload(self, line):
+        """
+        Read something from the calldata.
+        calldataload <pos: int>
+        """
+        pos = self.get_int(line)
+        value = self.computation.msg.data[pos:pos + 32]
+        padded_value = value.ljust(32, b'\x00')
+        normalized_value = padded_value.lstrip(b'\x00')
 
-        if pos_str.startswith('0x'):
-            pos = to_int(hexstr=pos_str)
-        else:
-            try:
-                pos = int(pos_str)
-            except ValueError:
-                self.stdout.write('Only valid int/hex positions allowed')
-
-        self.stdout.write(to_hex(self.computation.memory_read(pos, 32)) + '\n')
+        self.stdout.write(
+            "{}\t{} \n".format(
+                pos,
+                to_hex(normalized_value)
+            )
+        )
 
     def default(self, line):
         line = line.strip()
@@ -157,10 +184,11 @@ class VyperDebugCmd(cmd.Cmd):
 
     def do_stack(self, *args):
         """ Show contents of the stack """
-        for idx, value in enumerate(self.computation._stack.values):
-            self.stdout.write("{}\t{}".format(idx, to_hex(value)) + '\n')
-        else:
+        if len(self.computation._stack.values) == 0:
             self.stdout.write("Stack is empty\n")
+        else:
+            for idx, value in enumerate(self.computation._stack.values):
+                self.stdout.write("{}\t{}".format(idx, to_hex(value)) + '\n')
 
     def do_pdb(self, *args):
         # Break out to pdb for vdb debugging.
@@ -173,7 +201,7 @@ class VyperDebugCmd(cmd.Cmd):
         pass
 
     def do_quit(self, *args):
-        return True
+        sys.exit()
 
     def do_exit(self, *args):
         """ Exit vdb """
