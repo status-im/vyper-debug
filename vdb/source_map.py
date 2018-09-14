@@ -1,6 +1,9 @@
 from vyper.parser import (
     parser,
 )
+from vyper.parser.global_context import (
+    GlobalContext
+)
 from vyper.types import (
     get_size_of_type,
     ByteArrayType,
@@ -32,15 +35,14 @@ def serialise_var_rec(var_rec):
 
 
 def produce_source_map(code):
-    _contracts, _events, _defs, _globals, _custom_units = \
-        parser.get_contracts_and_defs_and_globals(parser.parse(code))
+    global_ctx = GlobalContext.get_global_context(parser.parse(code))
     source_map = {
         'globals': {},
         'locals': {}
     }
     source_map['globals'] = {
         name: serialise_var_rec(var_record)
-        for name, var_record in _globals.items()
+        for name, var_record in global_ctx._globals.items()
     }
     # Fetch context for each function.
     lll = parser.parse_tree_to_lll(parser.parse(code), code, runtime_only=True)
@@ -50,7 +52,7 @@ def produce_source_map(code):
     }
 
     prev_func_name = None
-    for _def in _defs:
+    for _def in global_ctx._defs:
         func_info = {
             'from_lineno': _def.lineno,
             'variables': {}
