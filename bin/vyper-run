@@ -27,7 +27,7 @@ from web3 import (
 aparser = argparse.ArgumentParser(description='Vyper {0} quick CLI runner'.format(vyper.__version__))
 aparser.add_argument('input_file', help='Vyper sourcecode to run')
 aparser.add_argument('call_list', help='call list, without parameters: func, with parameters func(1, 2, 3). Semicolon separated')
-aparser.add_argument('-i', help='init args, comma separated', default='', dest='init_args')
+aparser.add_argument('-i', help='init args, comma separated', default=None, dest='init_args')
 
 args = aparser.parse_args()
 set_evm_opcode_pass()  # by default just pass over the debug opcode.
@@ -146,8 +146,9 @@ if __name__ == '__main__':
             init_abi = next(filter(lambda func: func["name"] == '__init__', abi))
             init_args = cast_types(init_args, init_abi)
 
+
         # Compile contract to chain.
-        contract = get_contract(w3, code, *init_args, language='vyper')
+        contract = get_contract(w3, code, *init_args)
 
         # Execute calls
         for func_name, args in calls:
@@ -163,6 +164,7 @@ if __name__ == '__main__':
                 break
 
             cast_args = cast_types(args, func_abi)
+
             res = getattr(contract.functions, func_name)(*cast_args).call({'gas': func_abi.get('gas', 0) + 50000})
 
             source_map = produce_source_map(code)
@@ -171,6 +173,7 @@ if __name__ == '__main__':
             set_evm_opcode_pass()
 
             print('- Returns:')
+            res = getattr(contract.functions, func_name)(*cast_args).call({'gas': func_abi['gas'] + 92000})
             pprint('{}'.format(res))
 
             # Detect any new log events, and print them.

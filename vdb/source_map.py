@@ -53,22 +53,23 @@ def produce_source_map(code):
 
     prev_func_name = None
     for _def in global_ctx._defs:
-        func_info = {
-            'from_lineno': _def.lineno,
-            'variables': {}
-        }
-        # set local variables for specific function.
-        context = contexts[_def.name]
-        func_info['variables'] = {
-            var_name: serialise_var_rec(var_rec)
-            for var_name, var_rec in context.vars.items()
-        }
+        if _def.name != '__init__':
+            func_info = {
+                'from_lineno': _def.lineno,
+                'variables': {}
+            }
+            # set local variables for specific function.
+            context = contexts[_def.name]
+            func_info['variables'] = {
+                var_name: serialise_var_rec(var_rec)
+                for var_name, var_rec in context.vars.items()
+            }
 
-        source_map['locals'][_def.name] = func_info
-        # set to_lineno
-        if prev_func_name:
-            source_map['locals'][prev_func_name]['to_lineno'] = _def.lineno
-        prev_func_name = _def.name
+            source_map['locals'][_def.name] = func_info
+            # set to_lineno
+            if prev_func_name:
+                source_map['locals'][prev_func_name]['to_lineno'] = _def.lineno
+            prev_func_name = _def.name
 
     source_map['locals'][_def.name]['to_lineno'] = len(code.splitlines())
 
