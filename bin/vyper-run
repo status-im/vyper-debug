@@ -97,7 +97,7 @@ def get_func_abi(abi, func_name, args):
             # try func name first.
             if candidate_func_abi["name"] == func_name and \
                func_name_count_map[candidate_func_abi['name']] == 1:
-                if len(args) != candidate_func_abi['inputs']:
+                if len(args) != len(candidate_func_abi['inputs']):
                     print('Incorrect arguments for {}'.format(func_name))
                     return
                 else:
