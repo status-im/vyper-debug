@@ -9,7 +9,6 @@ from eth_utils import (
 import evm
 from evm import constants
 from evm.vm.opcode import as_opcode
-
 from vyper.opcodes import opcodes as vyper_opcodes
 from vdb.variables import (
     parse_global,
@@ -254,3 +253,58 @@ def set_evm_opcode_pass():
         gas_cost=0
     )
     setattr(evm.vm.forks.byzantium.computation.ByzantiumComputation, 'opcodes', opcodes)
+
+
+class DebugVM(ByzantiumVM):
+    self.breakpoints = list()
+
+    def run_debugger(self, computation)
+        VyperDebugCmd(
+            computation,
+            line_no=line_no,
+            source_code=source_code,
+            source_map=source_map,
+            stdin=stdin,
+            stdout=stdout
+        ).cmdloop()
+
+    @classmethod
+    def apply_computation(cls,
+                          state: BaseState,
+                          message: Message,
+                          transaction_context: BaseTransactionContext) -> 'BaseComputation':
+
+        with cls(state, message, transaction_context) as computation:
+
+            # Early exit on pre-compiles
+            if message.code_address in computation.precompiles:
+                computation.precompiles[message.code_address](computation)
+                return computation
+
+            for opcode in computation.code:
+                opcode_fn = computation.get_opcode_fn(opcode)
+
+                pc_to_execute = max(0, computation.code.pc - 1)
+                computation.logger.trace(
+                    "OPCODE: 0x%x (%s) | pc: %s",
+                    opcode,
+                    opcode_fn.mnemonic,
+                    pc_to_execute,
+                )
+
+                if pc_to_execute in self.debugger.reakpoints:
+                    import ipdb; ipdb.set_trace()
+
+                try:
+                    opcode_fn(computation=computation)
+                except Halt:
+                    break
+
+        return computation
+
+original_vm = evm.vm.forks.byzantium.ByzantiumVM
+
+
+def set_debug_vm():
+    setattr(evm.vm.forks.byzantium, 'ByzantiumVM', DebugVM)
+    setattr(evm.vm.forks.byzantium.ByzantiumVM, 'breakpoints', [])
