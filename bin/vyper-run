@@ -4,18 +4,12 @@ import vyper
 from collections import Counter
 from pprint import pprint
 from vyper import compiler
-from vyper.parser import (
-    parser,
-)
-from vdb.vdb import (
-    set_evm_opcode_debugger,
-    set_evm_opcode_pass
-)
+
 from vdb.source_map import (
     produce_source_map
 )
-from eth_tester import (
-    EthereumTester,
+from vdb.eth_tester_debug_backend import (
+    PyEVMDebugBackend
 )
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
@@ -30,7 +24,6 @@ aparser.add_argument('call_list', help='call list, without parameters: func, wit
 aparser.add_argument('-i', help='init args, comma separated', default=None, dest='init_args')
 
 args = aparser.parse_args()
-set_evm_opcode_pass()  # by default just pass over the debug opcode.
 
 
 def cast_types(args, abi_signature):
@@ -43,10 +36,15 @@ def cast_types(args, abi_signature):
     return newargs
 
 
-def get_tester():
-    tester = EthereumTester()
+def get_tester(code):
+    from eth_tester import (
+        EthereumTester,
+    )
+    tester = EthereumTester(backend=PyEVMDebugBackend())
+    import ipdb; ipdb.set_trace()
     def zero_gas_price_strategy(web3, transaction_params=None):
         return 0  # zero gas price makes testing simpler.
+
     w3 = Web3(EthereumTesterProvider(tester))
     w3.eth.setGasPriceStrategy(zero_gas_price_strategy)
     return tester, w3
@@ -122,7 +120,7 @@ if __name__ == '__main__':
         code = fh.read()
         # Patch in vdb.
         init_args = args.init_args.split(',') if args.init_args else []
-        tester, w3 = get_tester()
+        tester, w3 = get_tester(code)
 
         # Built list of calls to make.
         calls = []
@@ -146,7 +144,6 @@ if __name__ == '__main__':
             init_abi = next(filter(lambda func: func["name"] == '__init__', abi))
             init_args = cast_types(init_args, init_abi)
 
-
         # Compile contract to chain.
         contract = get_contract(w3, code, *init_args)
 
@@ -167,10 +164,7 @@ if __name__ == '__main__':
 
             res = getattr(contract.functions, func_name)(*cast_args).call({'gas': func_abi.get('gas', 0) + 50000})
 
-            source_map = produce_source_map(code)
-            set_evm_opcode_debugger(source_code=code, source_map=source_map)
             tx_hash = getattr(contract.functions, func_name)(*cast_args).transact({'gas': func_abi.get('gas', 0) + 50000})
-            set_evm_opcode_pass()
 
             print('- Returns:')
             res = getattr(contract.functions, func_name)(*cast_args).call({'gas': func_abi['gas'] + 92000})
