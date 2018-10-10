@@ -45,8 +45,13 @@ def _setup_tester_chain():
 
 class PyEVMDebugBackend(PyEVMBackend):
 
-    def __init__(self):
+    def __init__(self, ):
         super().__init__()
 
     def reset_to_genesis(self):
         self.account_keys, self.chain = _setup_tester_chain()
+
+
+def set_debug_info(source_code, source_map):
+    setattr(DebugComputation, 'source_code', source_code)
+    setattr(DebugComputation, 'source_map', source_map)

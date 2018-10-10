@@ -9,7 +9,8 @@ from vdb.source_map import (
     produce_source_map
 )
 from vdb.eth_tester_debug_backend import (
-    PyEVMDebugBackend
+    PyEVMDebugBackend,
+    set_debug_info
 )
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
@@ -40,6 +41,8 @@ def get_tester(code):
     from eth_tester import (
         EthereumTester,
     )
+    source_map = produce_source_map(code)
+    set_debug_info(code, source_map)
     tester = EthereumTester(backend=PyEVMDebugBackend())
 
     def zero_gas_price_strategy(web3, transaction_params=None):
