@@ -41,7 +41,7 @@ def get_tester(code):
         EthereumTester,
     )
     tester = EthereumTester(backend=PyEVMDebugBackend())
-    import ipdb; ipdb.set_trace()
+
     def zero_gas_price_strategy(web3, transaction_params=None):
         return 0  # zero gas price makes testing simpler.
 

@@ -23,9 +23,11 @@ class DebugComputation(ByzantiumComputation):
 
     @classmethod
     def apply_computation(cls, state, message, transaction_context):
-        print('hello!!!!!!')
-        import ipdb; ipdb.set_trace()
+
         with cls(state, message, transaction_context) as computation:
+
+            print('hello!!!!!!')
+            import ipdb; ipdb.set_trace()
 
             # Early exit on pre-compiles
             if message.code_address in computation.precompiles:
