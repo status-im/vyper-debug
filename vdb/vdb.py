@@ -9,7 +9,6 @@ from eth_utils import (
 import evm
 from evm import constants
 from evm.vm.opcode import as_opcode
-
 from vyper.opcodes import opcodes as vyper_opcodes
 from vdb.variables import (
     parse_global,

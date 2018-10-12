@@ -10,6 +10,9 @@ from vyper.types import (
     MappingType,
     TupleType
 )
+from vyper import compile_lll
+from vyper import optimizer
+from vyper.parser.parser import parse_to_lll
 
 
 def serialise_var_rec(var_rec):
@@ -36,9 +39,12 @@ def serialise_var_rec(var_rec):
 
 def produce_source_map(code):
     global_ctx = GlobalContext.get_global_context(parser.parse(code))
+    asm_list = compile_lll.compile_to_assembly(optimizer.optimize(parse_to_lll(code, runtime_only=True)))
+    c, line_number_map = compile_lll.assembly_to_evm(asm_list)
     source_map = {
         'globals': {},
-        'locals': {}
+        'locals': {},
+        'line_number_map': line_number_map
     }
     source_map['globals'] = {
         name: serialise_var_rec(var_record)
