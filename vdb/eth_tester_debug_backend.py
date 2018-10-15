@@ -52,6 +52,8 @@ class PyEVMDebugBackend(PyEVMBackend):
         self.account_keys, self.chain = _setup_tester_chain()
 
 
-def set_debug_info(source_code, source_map):
+def set_debug_info(source_code, source_map, stdin=None, stdout=None):
     setattr(DebugComputation, 'source_code', source_code)
     setattr(DebugComputation, 'source_map', source_map)
+    setattr(DebugComputation, 'stdin', stdin)
+    setattr(DebugComputation, 'stdout', stdout)

@@ -15,6 +15,10 @@ from vdb.vdb import (
     set_evm_opcode_debugger,
     VyperDebugCmd
 )
+from vdb.eth_tester_debug_backend import (
+    PyEVMDebugBackend,
+    set_debug_info
+)
 from vdb.source_map import (
     produce_source_map
 )
@@ -22,7 +26,7 @@ from vdb.source_map import (
 
 @pytest.fixture(scope="module")
 def tester():
-    t = EthereumTester()
+    t = EthereumTester(backend=PyEVMDebugBackend())
     return t
 
 
@@ -46,10 +50,9 @@ def _get_contract(w3, source_code, *args, **kwargs):
     stdout = kwargs['stdout'] if 'stdout' in kwargs else None
 
     source_map = produce_source_map(source_code)
-    set_evm_opcode_debugger(
-        source_code=source_code, source_map=source_map, stdin=stdin, stdout=stdout
-    )
-
+    set_debug_info(source_code, source_map, stdin, stdout)
+    import vdb
+    setattr(vdb.debug_computation.DebugComputation, 'enable_debug', True)
     value = kwargs.pop('value', 0)
     value_in_eth = kwargs.pop('value_in_eth', 0)
     value = value_in_eth * 10**18 if value_in_eth else value  # Handle deploying with an eth value.

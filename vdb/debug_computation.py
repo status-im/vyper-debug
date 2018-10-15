@@ -11,6 +11,8 @@ class DebugComputation(ByzantiumComputation):
     enable_debug = False
     source_code = None
     source_map = None
+    stdin = None
+    stdout = None
 
     @classmethod
     def run_debugger(self, computation, line_no):
@@ -19,8 +21,8 @@ class DebugComputation(ByzantiumComputation):
             line_no=line_no,
             source_code=self.source_code,
             source_map=self.source_map,
-            stdin=None,
-            stdout=None
+            stdin=self.stdin,
+            stdout=self.stdout
         ).cmdloop()
         return line_no
 
