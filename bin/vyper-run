@@ -12,6 +12,7 @@ from vdb.eth_tester_debug_backend import (
     PyEVMDebugBackend,
     set_debug_info
 )
+import vdb.debug_computation
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
@@ -165,7 +166,9 @@ if __name__ == '__main__':
 
             cast_args = cast_types(args, func_abi)
 
+            setattr(vdb.debug_computation.DebugComputation, 'enable_debug', True)
             res = getattr(contract.functions, func_name)(*cast_args).call({'gas': func_abi.get('gas', 0) + 50000})
+            setattr(vdb.debug_computation.DebugComputation, 'enable_debug', False)
 
             tx_hash = getattr(contract.functions, func_name)(*cast_args).transact({'gas': func_abi.get('gas', 0) + 50000})
 
