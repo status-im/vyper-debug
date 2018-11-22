@@ -6,9 +6,9 @@ from eth_utils import (
     to_int,
 )
 
-import evm
-from evm import constants
-from evm.vm.opcode import as_opcode
+import eth.vm
+from eth import constants
+from eth.vm.opcode import as_opcode
 from vyper.opcodes import opcodes as vyper_opcodes
 from vdb.variables import (
     parse_global,
@@ -215,7 +215,7 @@ class VyperDebugCmd(cmd.Cmd):
         return True
 
 
-original_opcodes = evm.vm.forks.byzantium.computation.ByzantiumComputation.opcodes
+original_opcodes = eth.vm.forks.byzantium.computation.ByzantiumComputation.opcodes
 
 
 def set_evm_opcode_debugger(source_code=None, source_map=None, stdin=None, stdout=None):
@@ -238,7 +238,7 @@ def set_evm_opcode_debugger(source_code=None, source_map=None, stdin=None, stdou
         gas_cost=0
     )
 
-    setattr(evm.vm.forks.byzantium.computation.ByzantiumComputation, 'opcodes', opcodes)
+    setattr(eth.vm.forks.byzantium.computation.ByzantiumComputation, 'opcodes', opcodes)
 
 
 def set_evm_opcode_pass():
@@ -252,4 +252,4 @@ def set_evm_opcode_pass():
         mnemonic="DEBUG",
         gas_cost=0
     )
-    setattr(evm.vm.forks.byzantium.computation.ByzantiumComputation, 'opcodes', opcodes)
+    setattr(eth.vm.forks.byzantium.computation.ByzantiumComputation, 'opcodes', opcodes)

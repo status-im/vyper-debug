@@ -1,11 +1,11 @@
-from evm.vm.forks.byzantium.computation import (
+from eth.vm.forks.byzantium.computation import (
     ByzantiumComputation,
 )
-from evm.exceptions import (
+from eth.exceptions import (
     Halt,
+    VMError
 )
 from vdb.vdb import VyperDebugCmd
-from evm.exceptions import VMError
 from vyper.exceptions import ParserException
 
 
@@ -97,7 +97,7 @@ class DebugComputation(ByzantiumComputation):
                     pos = cls.get_pos(pc_to_execute)
                     msg = e.args[0]
                     msg = "" if len(msg) == 0 else msg
-                    # import ipdb; ipdb.set_trace()
+
                     raise DebugVMError(
                         message=msg,
                         item=pos,
