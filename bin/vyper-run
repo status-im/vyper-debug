@@ -5,7 +5,7 @@ import os
 import vyper
 from collections import Counter
 from pprint import pprint
-from vyper import compiler
+from vyper import compile_code
 
 from vdb.source_map import (
     produce_source_map
@@ -62,8 +62,8 @@ def get_tester(code):
 
 
 def get_contract(w3, source_code, *args, **kwargs):
-    abi = compiler.mk_full_signature(source_code)
-    bytecode = '0x' + compiler.compile(source_code).hex()
+    compiler_out = compile_code(source_code, ['abi', 'bytecode'])
+    abi, bytecode = compiler_out['abi'], compiler_out['bytecode']
     contract = w3.eth.contract(abi=abi, bytecode=bytecode)
 
     value = kwargs.pop('value', 0)
@@ -148,7 +148,7 @@ if __name__ == '__main__':
 
             calls.append((name, args))
 
-            abi = compiler.mk_full_signature(code)
+            abi = compile_code(code, ['abi'])['abi']
 
         # Format init args.
         if init_args:
