@@ -1,7 +1,7 @@
 from eth_hash.auto import keccak
-from eth_utils import to_hex
 from eth_abi import decode_single
-from eth.utils.numeric import (
+from eth_utils import (
+    to_hex,
     big_endian_to_int,
     int_to_big_endian,
 )

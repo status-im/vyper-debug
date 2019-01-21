@@ -1,6 +1,6 @@
 import pytest
 
-from vyper import compiler
+from vyper import compile_code
 
 from eth_tester import (
     EthereumTester,
@@ -12,7 +12,6 @@ from web3 import (
     Web3,
 )
 from vdb.vdb import (
-    set_evm_opcode_debugger,
     VyperDebugCmd
 )
 from vdb.eth_tester_debug_backend import (
@@ -24,7 +23,7 @@ from vdb.source_map import (
 )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def tester():
     t = EthereumTester(backend=PyEVMDebugBackend())
     return t
@@ -34,7 +33,7 @@ def zero_gas_price_strategy(web3, transaction_params=None):
     return 0  # zero gas price makes testing simpler.
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def w3(tester):
     w3 = Web3(EthereumTesterProvider(tester))
     w3.eth.setGasPriceStrategy(zero_gas_price_strategy)
@@ -42,8 +41,9 @@ def w3(tester):
 
 
 def _get_contract(w3, source_code, *args, **kwargs):
-    abi = compiler.mk_full_signature(source_code)
-    bytecode = '0x' + compiler.compile(source_code).hex()
+    compiler_output = compile_code(source_code, ['bytecode', 'abi'])
+    abi = compiler_output['abi']
+    bytecode = compiler_output['bytecode']
     contract = w3.eth.contract(abi=abi, bytecode=bytecode)
 
     stdin = kwargs['stdin'] if 'stdin' in kwargs else None

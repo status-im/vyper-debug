@@ -46,9 +46,9 @@ setup(
     url='https://github.com/ethereum/vyper-debug',
     include_package_data=True,
     install_requires=[
-        "py-evm==0.2.0a33",
+        "py-evm==0.2.0a34",
         "eth-tester==0.1.0b33",
-        "vyper==0.1.0b6",
+        "vyper>=0.1.0b5",
         "web3==4.8.1"
     ],
     setup_requires=['setuptools-markdown'],
