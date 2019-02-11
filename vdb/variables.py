@@ -78,7 +78,7 @@ def get_hash(var_pos, keys, _type):
 def valid_subscript(name, global_type):
     if name.count('[') != name.count(']'):
         return False
-    elif global_type.count('[') != name.count('['):
+    elif global_type.count('(') != name.count(']'):
         return False
     return True
 
@@ -95,8 +95,6 @@ def parse_global(stdout, global_vars, computation, line):
     global_type = global_vars[var_name]['type']
     slot = None
 
-    import ipdb; ipdb.set_trace()
-
     if global_type in base_types:
         slot = global_vars[var_name]['position']
     elif global_type.startswith('map') and valid_subscript(name, global_type):
@@ -110,7 +108,7 @@ def parse_global(stdout, global_vars, computation, line):
             slot=slot,
         )
         if global_type.startswith('map'):
-            global_type = global_type[global_type.find('(') + 1: global_type.find('[')]
+            global_type = global_type[global_type.rfind(',') + 1: global_type.rfind(')')].strip()
         print_var(stdout, value, global_type)
     else:
         stdout.write('Can not read global of type "{}".\n'.format(global_type))

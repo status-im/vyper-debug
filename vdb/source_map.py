@@ -23,7 +23,7 @@ def serialise_var_rec(var_rec):
         type_str = 'tuple'
         _size = get_size_of_type(var_rec.typ) * 32
     elif isinstance(var_rec.typ, MappingType):
-        type_str = 'map(%s)' % var_rec.typ
+        type_str = str(var_rec.typ)
         _size = 0
     else:
         type_str = var_rec.typ.typ

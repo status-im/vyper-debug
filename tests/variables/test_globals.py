@@ -3,7 +3,7 @@ import io
 
 def test_single_key(get_contract, get_last_out):
     code = """
-amap: bytes32[bytes32]
+amap: map(bytes32, bytes32)
 
 
 @public
@@ -31,8 +31,7 @@ def get(key: bytes32) -> bytes32:
 
 def test_double_key(get_contract, get_last_out):
     code = """
-amap: (bytes32)[bytes32][bytes32]
-
+amap: map(bytes32, map(bytes32, bytes32))
 
 @public
 def set(key1: bytes32, key2: bytes32, value: bytes32):

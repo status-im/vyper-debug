@@ -3,7 +3,7 @@ from vdb.source_map import produce_source_map
 
 def test_source_map_output():
     code = """
-a_map: bytes32[bytes32]
+a_map: map(bytes32, bytes32)
 
 @public
 def func1(a: int128) -> int128:
@@ -21,7 +21,7 @@ def func2(a: int128):
 
     # globals
     assert sm['globals']['a_map'] == {
-        'type': 'mapping(bytes32[bytes32])',
+        'type': 'map(bytes32, bytes32)',
         'size': 0,
         'position': 0
     }
