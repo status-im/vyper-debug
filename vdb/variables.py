@@ -95,9 +95,11 @@ def parse_global(stdout, global_vars, computation, line):
     global_type = global_vars[var_name]['type']
     slot = None
 
+    import ipdb; ipdb.set_trace()
+
     if global_type in base_types:
         slot = global_vars[var_name]['position']
-    elif global_type.startswith('mapping') and valid_subscript(name, global_type):
+    elif global_type.startswith('map') and valid_subscript(name, global_type):
         keys = get_keys(name)
         var_pos = global_vars[var_name]['position']
         slot = get_hash(var_pos, keys, global_type)
@@ -107,7 +109,7 @@ def parse_global(stdout, global_vars, computation, line):
             address=computation.msg.storage_address,
             slot=slot,
         )
-        if global_type.startswith('mapping'):
+        if global_type.startswith('map'):
             global_type = global_type[global_type.find('(') + 1: global_type.find('[')]
         print_var(stdout, value, global_type)
     else:

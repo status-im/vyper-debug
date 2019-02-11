@@ -23,7 +23,7 @@ def serialise_var_rec(var_rec):
         type_str = 'tuple'
         _size = get_size_of_type(var_rec.typ) * 32
     elif isinstance(var_rec.typ, MappingType):
-        type_str = 'mapping(%s)' % var_rec.typ
+        type_str = 'map(%s)' % var_rec.typ
         _size = 0
     else:
         type_str = var_rec.typ.typ
@@ -38,7 +38,7 @@ def serialise_var_rec(var_rec):
 
 
 def produce_source_map(code):
-    global_ctx = GlobalContext.get_global_context(parser.parse(code))
+    global_ctx = GlobalContext.get_global_context(parser.parse_to_ast(code))
     asm_list = compile_lll.compile_to_assembly(optimizer.optimize(parse_to_lll(code, runtime_only=True)))
     c, line_number_map = compile_lll.assembly_to_evm(asm_list)
     source_map = {
@@ -51,7 +51,7 @@ def produce_source_map(code):
         for name, var_record in global_ctx._globals.items()
     }
     # Fetch context for each function.
-    lll = parser.parse_tree_to_lll(parser.parse(code), code, runtime_only=True)
+    lll = parser.parse_tree_to_lll(parser.parse_to_ast(code), code, runtime_only=True)
     contexts = {
         f.func_name: f.context
         for f in lll.args[1:] if hasattr(f, 'context')

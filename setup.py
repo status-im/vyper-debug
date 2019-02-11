@@ -48,7 +48,7 @@ setup(
     install_requires=[
         "py-evm==0.2.0a34",
         "eth-tester==0.1.0b33",
-        "vyper>=0.1.0b5",
+        "vyper>=0.1.0b8",
         "web3==4.8.1"
     ],
     setup_requires=['setuptools-markdown'],
