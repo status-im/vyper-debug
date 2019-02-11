@@ -38,7 +38,7 @@ extras_require['dev'] = (
 setup(
     name='vyper-debug',
     # *IMPORTANT*: Don't manually change the version here. Use `make bump`, as described in readme
-    version='0.1.2-beta.4',
+    version='0.1.2-beta.5',
     description="""vyper-debug: Easy to use Vyper debugger | vdb""",
     long_description_markdown_filename='README.md',
     author='Jacques Wagener',
