@@ -39,7 +39,9 @@ def serialise_var_rec(var_rec):
 
 def produce_source_map(code):
     global_ctx = GlobalContext.get_global_context(parser.parse_to_ast(code))
-    asm_list = compile_lll.compile_to_assembly(optimizer.optimize(parse_to_lll(code, runtime_only=True)))
+    asm_list = compile_lll.compile_to_assembly(
+        optimizer.optimize(parse_to_lll(code, runtime_only=True))
+    )
     c, line_number_map = compile_lll.assembly_to_evm(asm_list)
     source_map = {
         'globals': {},

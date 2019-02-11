@@ -8,11 +8,9 @@ from vdb.debug_computation import DebugComputation
 from eth_tester.backends.pyevm.main import (
     get_default_genesis_params,
     generate_genesis_state_for_keys,
-    get_default_genesis_params,
     get_default_account_keys,
     PyEVMBackend
 )
-
 
 
 class DebugState(ByzantiumState):
@@ -52,7 +50,7 @@ class PyEVMDebugBackend(PyEVMBackend):
 
     def reset_to_genesis(self, genesis_params=None, genesis_state=None, num_accounts=None):
         self.account_keys, self.chain = _setup_tester_chain(genesis_params, genesis_state,
-                                                           num_accounts)
+                                                            num_accounts)
 
 
 def set_debug_info(source_code, source_map, stdin=None, stdout=None):
