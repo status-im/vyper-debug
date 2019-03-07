@@ -5,6 +5,8 @@ from eth_utils import (
     big_endian_to_int,
     int_to_big_endian,
 )
+from vyper.utils import ceil32
+
 
 base_types = (
     'int128',
@@ -23,10 +25,14 @@ def print_var(stdout, value, var_typ):
 
     if isinstance(v, bytes):
         if var_typ in ('int128', 'uint256'):
-            stdout.write(str(decode_single(var_typ, value)) + '\n')
+            if len(v) < 32:
+                v = v.rjust(32, b'\0')
+            stdout.write(str(decode_single(var_typ, v)) + '\n')
         elif var_typ == 'address':
             stdout.write(to_hex(v[12:]) + '\n')
         elif var_typ.startswith('bytes'):
+            stdout.write(str(v) + '\n')
+        elif var_typ.startswith('string'):
             stdout.write(v.decode() + '\n')
     else:
         stdout.write(v.decode() + '\n')
@@ -94,8 +100,10 @@ def parse_global(stdout, global_vars, computation, line):
 
     global_type = global_vars[var_name]['type']
     slot = None
+    size = global_vars[var_name]['size']
+    is_bytelike = global_type.startswith('bytes') or global_type.startswith('string')
 
-    if global_type in base_types:
+    if global_type in base_types or is_bytelike:
         slot = global_vars[var_name]['position']
     elif global_type.startswith('map') and valid_subscript(name, global_type):
         keys = get_keys(name)
@@ -103,10 +111,27 @@ def parse_global(stdout, global_vars, computation, line):
         slot = get_hash(var_pos, keys, global_type)
 
     if slot is not None:
-        value = computation.state.account_db.get_storage(
-            address=computation.msg.storage_address,
-            slot=slot,
-        )
+        if is_bytelike:
+            value = b""
+            base_slot_hash = big_endian_to_int(keccak(int_to_big_endian(slot).rjust(32, b'\0')))
+            len_val = computation.state.account_db.get_storage(
+                address=computation.msg.storage_address,
+                slot=base_slot_hash,
+            )
+            for i in range(0, ceil32(len_val) // 32):
+                sub_slot = base_slot_hash + 1 + i
+                value += int_to_big_endian(
+                    computation.state.account_db.get_storage(
+                    address=computation.msg.storage_address,
+                    slot=sub_slot,
+                    )
+                )
+            value = value[:len_val]
+        else:
+            value = computation.state.account_db.get_storage(
+                address=computation.msg.storage_address,
+                slot=slot,
+            )
         if global_type.startswith('map'):
             global_type = global_type[global_type.rfind(',') + 1: global_type.rfind(')')].strip()
         print_var(stdout, value, global_type)

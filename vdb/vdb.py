@@ -93,7 +93,7 @@ class VyperDebugCmd(cmd.Cmd):
 
     def _get_fn_name_locals(self):
         for fn_name, info in self.local_vars.items():
-            if info['from_lineno'] < self.line_no < info['to_lineno']:
+            if info['from_lineno'] <= self.line_no <= info['to_lineno']:
                 return fn_name, info['variables']
         return '', {}
 
