@@ -5,9 +5,10 @@ from vyper.parser.global_context import (
     GlobalContext
 )
 from vyper.types import (
-    get_size_of_type,
     ByteArrayType,
+    get_size_of_type,
     MappingType,
+    StringType,
     TupleType
 )
 from vyper import compile_lll
@@ -18,6 +19,9 @@ from vyper.parser.parser import parse_to_lll
 def serialise_var_rec(var_rec):
     if isinstance(var_rec.typ, ByteArrayType):
         type_str = 'bytes[%s]' % var_rec.typ.maxlen
+        _size = get_size_of_type(var_rec.typ) * 32
+    elif isinstance(var_rec.typ, StringType):
+        type_str = 'string[%s]' % var_rec.typ.maxlen
         _size = get_size_of_type(var_rec.typ) * 32
     elif isinstance(var_rec.typ, TupleType):
         type_str = 'tuple'
