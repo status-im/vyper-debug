@@ -45,7 +45,7 @@ def parse_local(stdout, local_variables, computation, line):
         start_position = var_info['position']
         value = computation.memory_read(start_position, 32)
         print_var(stdout, value, local_type)
-    elif local_type.startswith('bytes'):
+    elif local_type.startswith('bytes') or local_type.startswith('string'):
         start_position = var_info['position']
         byte_len = big_endian_to_int(computation.memory_read(start_position, 32))
         if byte_len == 0:
