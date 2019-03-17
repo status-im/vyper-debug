@@ -9,7 +9,8 @@ from vyper.types import (
     get_size_of_type,
     MappingType,
     StringType,
-    TupleType
+    StructType,
+    TupleType,
 )
 from vyper import compile_lll
 from vyper import optimizer
@@ -23,6 +24,9 @@ def serialise_var_rec(var_rec):
     elif isinstance(var_rec.typ, StringType):
         type_str = 'string[%s]' % var_rec.typ.maxlen
         _size = get_size_of_type(var_rec.typ) * 32
+    elif isinstance(var_rec.typ, StructType):
+        type_str = 'struct[%s]' % var_rec.typ.name
+        _size = get_size_of_type(var_rec.typ) * 32
     elif isinstance(var_rec.typ, TupleType):
         type_str = 'tuple'
         _size = get_size_of_type(var_rec.typ) * 32
@@ -30,7 +34,7 @@ def serialise_var_rec(var_rec):
         type_str = str(var_rec.typ)
         _size = 0
     else:
-        type_str = var_rec.typ.typ
+        type_str = str(var_rec.typ)
         _size = get_size_of_type(var_rec.typ) * 32
 
     out = {
@@ -41,10 +45,19 @@ def serialise_var_rec(var_rec):
     return out
 
 
-def produce_source_map(code):
-    global_ctx = GlobalContext.get_global_context(parser.parse_to_ast(code))
+def produce_source_map(code, interface_codes=None):
+    global_ctx = GlobalContext.get_global_context(
+        parser.parse_to_ast(code),
+        interface_codes=interface_codes
+    )
     asm_list = compile_lll.compile_to_assembly(
-        optimizer.optimize(parse_to_lll(code, runtime_only=True))
+        optimizer.optimize(
+            parse_to_lll(
+                code,
+                runtime_only=True,
+                interface_codes=interface_codes
+            )
+        )
     )
     c, line_number_map = compile_lll.assembly_to_evm(asm_list)
     source_map = {
@@ -57,7 +70,12 @@ def produce_source_map(code):
         for name, var_record in global_ctx._globals.items()
     }
     # Fetch context for each function.
-    lll = parser.parse_tree_to_lll(parser.parse_to_ast(code), code, runtime_only=True)
+    lll = parser.parse_tree_to_lll(
+        parser.parse_to_ast(code),
+        code,
+        interface_codes=interface_codes,
+        runtime_only=True
+    )
     contexts = {
         f.func_name: f.context
         for f in lll.args[1:] if hasattr(f, 'context')
