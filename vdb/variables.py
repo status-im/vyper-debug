@@ -43,7 +43,7 @@ def parse_local(stdout, local_variables, computation, line):
     local_type = var_info['type']
     if local_type in base_types:
         start_position = var_info['position']
-        value = computation.memory_read(start_position, 32)
+        value = computation._memory._bytes[start_position:start_position + 32]
         print_var(stdout, value, local_type)
     elif local_type.startswith('bytes') or local_type.startswith('string'):
         start_position = var_info['position']

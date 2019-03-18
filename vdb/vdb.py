@@ -145,7 +145,7 @@ class VyperDebugCmd(cmd.Cmd):
         self.stdout.write(
             "{}\t{} \n".format(
                 pos,
-                to_hex(self.computation.memory_read(pos, 32))
+                to_hex(self.computation._memory._bytes[pos:pos + 32])
             )
         )
 
