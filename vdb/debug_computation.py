@@ -55,8 +55,12 @@ class DebugComputation(ByzantiumComputation):
 
     @classmethod
     def is_breakpoint(cls, pc, continue_line_nos):
-        breakpoint_lines = set(cls.source_map['line_number_map']['breakpoints'])
         line_no = cls.get_line_no(pc)
+        # PC breakpoint.
+        if pc in cls.source_map['line_number_map'].get('pc_breakpoints', {}):
+            return True, line_no
+        # Line no breakpoint.
+        breakpoint_lines = set(cls.source_map['line_number_map']['breakpoints'])
         if line_no is not None:
             if line_no in continue_line_nos:  # already been here, skip.
                 return False, line_no
