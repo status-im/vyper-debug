@@ -11,6 +11,7 @@ from vyper.types import (
     StringType,
     StructType,
     TupleType,
+    ListType,
 )
 from vyper import compile_lll
 from vyper import optimizer
@@ -29,6 +30,9 @@ def serialise_var_rec(var_rec):
         _size = get_size_of_type(var_rec.typ) * 32
     elif isinstance(var_rec.typ, TupleType):
         type_str = 'tuple'
+        _size = get_size_of_type(var_rec.typ) * 32
+    elif isinstance(var_rec.typ, ListType):
+        type_str = str(var_rec.typ)
         _size = get_size_of_type(var_rec.typ) * 32
     elif isinstance(var_rec.typ, MappingType):
         type_str = str(var_rec.typ)
