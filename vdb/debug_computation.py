@@ -27,17 +27,22 @@ class DebugComputation(ByzantiumComputation):
     source_map = None
     stdin = None
     stdout = None
+    step_mode = False
+    trace = False
+    pc = 0
 
     @classmethod
     def run_debugger(self, computation, line_no):
-        VyperDebugCmd(
+        res = VyperDebugCmd(
             computation,
             line_no=line_no,
             source_code=self.source_code,
             source_map=self.source_map,
             stdin=self.stdin,
             stdout=self.stdout
-        ).cmdloop()
+        )
+        res.cmdloop()
+        self.step_mode = res.step_mode
         return line_no
 
     @classmethod
@@ -82,16 +87,19 @@ class DebugComputation(ByzantiumComputation):
                 opcode_fn = computation.get_opcode_fn(opcode)
 
                 pc_to_execute = max(0, computation.code.pc - 1)
-                computation.logger.trace(
-                    "OPCODE: 0x%x (%s) | pc: %s",
-                    opcode,
-                    opcode_fn.mnemonic,
-                    pc_to_execute,
-                )
+                if cls.trace:
+                    print(
+                        "NEXT OPCODE: 0x%x (%s) | pc: %s..%s" %
+                        (opcode,
+                        opcode_fn.mnemonic,
+                        cls.pc,
+                        pc_to_execute)
+                    )
+                cls.pc = pc_to_execute
 
                 is_breakpoint, line_no = cls.is_breakpoint(pc_to_execute, continue_line_nos)
 
-                if is_breakpoint and cls.enable_debug:
+                if (is_breakpoint or cls.step_mode) and cls.enable_debug:
                     cls.run_debugger(computation, line_no)
                     continue_line_nos.append(line_no)
 

@@ -49,6 +49,7 @@ class VyperDebugCmd(cmd.Cmd):
         self.line_no = line_no
         self.global_vars = source_map.get("globals", {})
         self.local_vars = source_map.get("locals", {})
+        self.step_mode = False
         super().__init__(stdin=stdin, stdout=stdout)
         if stdout or stdin:
             self.use_rawinput = False
@@ -74,8 +75,14 @@ class VyperDebugCmd(cmd.Cmd):
         self._print_code_position()
 
     def postloop(self):
-        self.stdout.write('Exiting vdb' + '\n')
+        if not self.step_mode:
+            self.stdout.write('Exiting vdb' + '\n')
         super().postloop()
+
+    def do_step(self, *args):
+        """ Step to next instruction """
+        self.step_mode = True
+        return True
 
     def do_state(self, *args):
         """ Show current EVM state information. """
@@ -208,6 +215,7 @@ class VyperDebugCmd(cmd.Cmd):
 
     def do_continue(self, *args):
         """ Exit vdb """
+        self.step_mode = False
         return True
 
     def do_EOF(self, line):
