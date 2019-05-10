@@ -99,8 +99,8 @@ def get_func_abi(abi, func_name, args):
             return 'int128'
         except ValueError:
             return 'bytes'
-
-    func_name_count_map = dict(Counter([a['name'] for a in abi]))
+    # handle when func doesnot have a name --- special for __init__ and __default__
+    func_name_count_map = dict(Counter([a['name'] for a in abi if a['type'] != 'constructor' and a['type'] != 'fallback' ]))
     for candidate_func_abi in abi:
         if candidate_func_abi["type"] == "function":
             # try func name first.
@@ -152,7 +152,7 @@ if __name__ == '__main__':
 
         # Format init args.
         if init_args:
-            init_abi = next(filter(lambda func: func["name"] == '__init__', abi))
+            init_abi = next(filter(lambda func: func["type"] == 'constructor', abi)) #since __init__ doesn't have a name
             init_args = cast_types(init_args, init_abi)
 
         # Compile contract to chain.
@@ -180,7 +180,6 @@ if __name__ == '__main__':
             tx_hash = getattr(contract.functions, func_name)(*cast_args).transact({'gas': func_abi.get('gas', 0) + 50000})
 
             print('- Returns:')
-            res = getattr(contract.functions, func_name)(*cast_args).call({'gas': func_abi['gas'] + 92000})
             pprint('{}'.format(res))
 
             # Detect any new log events, and print them.
