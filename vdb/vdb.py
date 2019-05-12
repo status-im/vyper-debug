@@ -79,7 +79,7 @@ class VyperDebugCmd(cmd.Cmd):
             self.stdout.write('Exiting vdb' + '\n')
         super().postloop()
 
-    def do_step(self, *args):
+    def do_stepi(self, *args):
         """ Step to next instruction """
         self.step_mode = True
         return True
