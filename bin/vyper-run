@@ -30,6 +30,7 @@ if tb_limit:
 aparser = argparse.ArgumentParser(description='Vyper {0} quick CLI runner'.format(vyper.__version__))
 aparser.add_argument('input_file', help='Vyper sourcecode to run')
 aparser.add_argument('call_list', help='call list, without parameters: func, with parameters func(1, 2, 3). Semicolon separated')
+aparser.add_argument('--trace', action='store_true', help='very verbose logging')
 aparser.add_argument('-i', help='init args, comma separated', default=None, dest='init_args')
 
 args = aparser.parse_args()
@@ -132,6 +133,8 @@ if __name__ == '__main__':
         # Patch in vdb.
         init_args = args.init_args.split(',') if args.init_args else []
         tester, w3 = get_tester(code)
+
+        setattr(vdb.debug_computation.DebugComputation, 'trace', args.trace)
 
         # Built list of calls to make.
         calls = []
