@@ -1,4 +1,6 @@
-# vyper-debug
+# Vyper-Debug
+
+![vyper-debug](https://user-images.githubusercontent.com/6917456/59114867-62d09c00-8948-11e9-818b-7efcae913317.gif)
 
 [![Join the chat at https://gitter.im/status-im/vyper-debug](https://badges.gitter.im/status-im/vyper-debug.svg)](https://gitter.im/status-im/vyper-debug?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://circleci.com/gh/status-im/vyper-debug.svg?style=shield)](https://circleci.com/gh/status-im/vyper-debug)
